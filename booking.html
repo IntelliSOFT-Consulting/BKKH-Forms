@@ -26,60 +26,90 @@
 
     <h2>Procedure Bookings Form</h2>
     <div style="display:none">
-        <td>Evaluation date:<encounterDate id="encounterDate" showTime="false" default="now" /></td>
+        <td>Evaluation date:<encounterDate id="encounterDate" showTime="false" default="now"  disallowMultipleEncountersOnDate="block" /></td>
     </div>
     <div class="background">
         <br />
         <table class="booking">
             <tbody>
-                <tr>
-                    <td>Appointment Date:<obs conceptId="5096" allowFutureDates="true" /></td>
-                    <td>Site or Location:<encounterLocation default="24" /></td>
-                    <td>Provider:<encounterProvider default="currentUser" /> </td>
-                </tr>
-            </tbody>
-        </table>
-        <br />
-        <table class="booking">
-                <tbody>
-
-                        <repeat>
-
-                             <template>
-                                 <tr>
-                                <td>
-                                    Diagnosis: <obs conceptId="6042AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerClasses="Diagnosis" style="autocomplete" />
-                                </td>
-                                <td>
-                                    <obs conceptId="159946AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerConceptId="159943AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerLabels="Primary" style="checkbox" />
-                                    <obs conceptId="159946AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerConceptId="159944AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerLabels="Secondary" style="checkbox" />
-
-                                </td>
-                                 </tr>
-
-                            </template>
-                                <render n="1" concept="Diagnosis"/>
-                                <render n="2" concept="Diagnosis"/>
-                                <render n="3" concept="Diagnosis"/>
-
-                        </repeat>
-
+            <tr>
+                <td>Appointment Date:<obs conceptId="5096" allowFutureDates="true" /></td>
+                <td>Site or Location:<encounterLocation default="24" /></td>
+                <td></td>
+            </tr>
             </tbody>
         </table>
         <br />
         <table class="booking">
             <tbody>
-                <tr>
-                    <td colspan="2">Operation to be Performed:<obs conceptId="1651" answerClasses="Procedure" style="autocomplete" /></td>
-                    <td>Surgeon In-charge of Operation:<obs conceptId="164226AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" /></td>
-                </tr>
+
+            <repeat>
+           
+                <template>
+                  <obsgroup groupingConceptId="26e4a5cd-b49d-4ba8-8c55-ad73c8f00fdc">
+                    <tr>
+                        <td>
+                            Diagnosis: <obs conceptId="6042AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerClasses="Diagnosis" style="autocomplete" />
+                        </td>
+                        <td>
+                            <obs conceptId="159946AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerConceptId="159943AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerLabels="Primary" style="checkbox" />
+                            <obs conceptId="159946AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerConceptId="159944AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerLabels="Secondary" style="checkbox" />
+
+                        </td>
+                    </tr>
+                 </obsgroup>
+                </template>
+                <render n="1" concept="Diagnosis"/>
+                <render n="2" concept="Diagnosis"/>
+                <render n="3" concept="Diagnosis"/>
+
+            </repeat>
 
             </tbody>
         </table>
-      </div>
+<table class="booking">
+            <tbody>
+           <tr>
+               <td colspan="2">Other Non coded diagnosis:<obs conceptId="161602AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" /></td>
+            </tr>
+          </tbody>
+        </table>
+        <br />
+        <table class="booking">
+            <tbody>
+            <tr>
+                <td colspan="2">Operation to be Performed:<obs conceptId="1651AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerClasses="Procedure" style="autocomplete" /></td>
+                    <td>
+                        Surgeon In-charge of Operation:<span style="color: red">*</span><encounterProvider role="Clinician" />
+                    </td>
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
 
     <submit submitClass="confirm right" submitCode="uicommons.saveForm"/>
     <ifMode mode="VIEW" include="false">
         <button class="cancel"><uimessage code="uicommons.cancelForm"/></button>
+    </ifMode>
+
+    <ifMode mode="EDIT" include="false">
+        <lookup complexExpression="
+            #set( $encounter = 0 )
+            #foreach ( $enc in $fn.allEncounters(null) )
+                  #if( $enc.encounterType.uuid == 'b9490361-6c6a-446a-a6c7-ebcd766c075a' )
+                      #if( $enc.visit.visitId == $visit.visitId )
+                          #set( $encounter = $enc)
+                      #end
+                   #end
+            #end
+            #if( $encounter != 0)
+                &lt;script type=&quot;text/javascript&quot;>
+                        if (window.location.href.indexOf('/module/htmlformentry/htmlForm.form') == -1 ||
+                            window.location.href.indexOf('/htmlformentryui/htmlform/enterHtmlFormWithStandardUi.page') == -1) {
+                            window.location.href = window.location.protocol + &quot;//&quot; + window.location.host + &quot;/&quot;+ OPENMRS_CONTEXT_PATH + &quot;/htmlformentryui/htmlform/editHtmlFormWithStandardUi.page?patientId=$encounter.patientId&amp;visitId=$visit.visitId&amp;formUuid=2f59d215-eed5-42e0-ba95-9797125b1d29&amp;encounterId=$encounter.encounterId&amp;returnUrl=%2F&quot; + OPENMRS_CONTEXT_PATH + &quot;%2Fcoreapps%2Fclinicianfacing%2Fpatient.page%3FpatientId%3D$encounter.patientId&quot;;
+                        }
+                &lt;/script>
+            #end"/>
     </ifMode>
 </htmlform>

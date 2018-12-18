@@ -24,15 +24,19 @@
 
     </script>
     <h2>PedsSurg Visit</h2>
-
+    <div style="display: none">
+        <encounterProvider default="currentUser" />
+    </div>
     <div class="background">
         <table class="paed">
             <tbody>
             <tr>
 
-                <td>Date: <encounterDate id="encounterDate" showTime="false" default="now"/></td>
+                <td>Date: <encounterDate id="encounterDate" showTime="false" default="now"  disallowMultipleEncountersOnDate="block" /></td>
                 <td>Clinic Location: <encounterLocation default="24" /></td>
-                <td>Examiner: <encounterProvider default="currentUser"/></td>
+                <td>Examiner: <obsgroup groupingConceptId="164919AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA">
+                    <obs conceptId="1473AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" size="10"/>
+                </obsgroup></td>
             </tr>
             <tr>
                 <td>Visit Type:<br />
@@ -48,6 +52,7 @@
         <br />
         <repeat>
             <template>
+<obsgroup groupingConceptId="26e4a5cd-b49d-4ba8-8c55-ad73c8f00fdc">
                 <table class="paed">
                     <tbody>
                     <tr>
@@ -62,11 +67,19 @@
                     </tr>
                     </tbody>
                 </table>
+</obsgroup>
             </template>
             <render n="1" concept="Diagnosis"/>
             <render n="2" concept="Diagnosis"/>
             <render n="3" concept="Diagnosis"/>
         </repeat>
+        <table class="paed">
+            <tbody>
+           <tr>
+               <td colspan="2">Other Non coded diagnosis:<obs conceptId="161602AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" /></td>
+            </tr>
+          </tbody>
+        </table>
         <table class="paed">
             <tbody>
             <tr>
@@ -83,8 +96,8 @@
             <tr>
 
                 <td>Health Status:<br />
-                    <obs conceptId="159640AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerConceptId="159405AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerLabel="Overall well"  style="checkbox" />
-                    <obs conceptId="159640AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerConceptId="159407AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerLabel="Not overall well" style="checkbox" />
+                    <obs conceptId="159640AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerConceptId="159405AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerLabel="Overall Well"  style="checkbox" />
+                    <obs conceptId="159640AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerConceptId="159407AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerLabel="Not Overall Well" style="checkbox" />
                 </td>
                 <td>F/U PRN ONLY:<br />
                     <obs conceptId="159488AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerConceptId="159490AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerLabel="Yes" style="checkbox" />
@@ -99,13 +112,9 @@
                     <obs conceptId="164258AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerConceptId="1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerLabel="Yes" style="checkbox" />
                     <obs conceptId="164258AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerConceptId="1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerLabel="No" style="checkbox" />
                 </td>
-                <td>Date of Next Procedure<obs conceptId="160715AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" allowFutureDates="true" allowTime="false" /></td>
+                <td></td>
             </tr>
-            <tr>
-
-                <td>Name of Surgeon <obs conceptId="1473AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" /></td>
-                <td colspan="2">Procedure next OR <obs conceptId="1651AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" answerClasses="Procedure" style="autocomplete" /></td>
-            </tr>
+            
             </tbody>
         </table>
         <br />
@@ -114,5 +123,25 @@
     <submit submitClass="confirm right" submitCode="uicommons.saveForm"/>
     <ifMode mode="VIEW" include="false">
         <button class="cancel"><uimessage code="uicommons.cancelForm"/></button>
+    </ifMode>
+
+    <ifMode mode="EDIT" include="false">
+        <lookup complexExpression="
+            #set( $encounter = 0 )
+            #foreach ( $enc in $fn.allEncounters(null) )
+                  #if( $enc.encounterType.uuid == '93c4e5dc-42ff-4512-8046-4489c9866d74' )
+                      #if( $enc.visit.visitId == $visit.visitId )
+                          #set( $encounter = $enc)
+                      #end
+                   #end
+            #end
+            #if( $encounter != 0)
+                &lt;script type=&quot;text/javascript&quot;>
+                        if (window.location.href.indexOf('/module/htmlformentry/htmlForm.form') == -1 ||
+                            window.location.href.indexOf('/htmlformentryui/htmlform/enterHtmlFormWithStandardUi.page') == -1) {
+                            window.location.href = window.location.protocol + &quot;//&quot; + window.location.host + &quot;/&quot;+ OPENMRS_CONTEXT_PATH + &quot;/htmlformentryui/htmlform/editHtmlFormWithStandardUi.page?patientId=$encounter.patientId&amp;visitId=$visit.visitId&amp;formUuid=082b1c09-1237-4851-8862-4e8d0c2ecce0&amp;encounterId=$encounter.encounterId&amp;returnUrl=%2F&quot; + OPENMRS_CONTEXT_PATH + &quot;%2Fcoreapps%2Fclinicianfacing%2Fpatient.page%3FpatientId%3D$encounter.patientId&quot;;
+                        }
+                &lt;/script>
+            #end"/>
     </ifMode>
 </htmlform>
