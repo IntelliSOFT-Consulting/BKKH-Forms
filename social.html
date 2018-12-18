@@ -17,63 +17,63 @@
     </style>
     <h2>Social Form</h2>
     <div style="display:none">
-        <td>Evaluation date:<encounterDate id="encounterDate" showTime="false" default="now" /></td>
+        <td>Evaluation date:<encounterDate id="encounterDate" showTime="false" default="now"  disallowMultipleEncountersOnDate="block" /></td>
+        <td>Provider:<encounterProvider default="currentUser"/></td>
     </div>
     <div class="background">
         <table class="social">
             <tbody>
-                <tr>
-                    <td>Location:<encounterLocation default="24" /></td>
-                    <td>Provider:<encounterProvider default="currentUser"/></td>
-                </tr>
+            <tr>
+                <td>Location:<encounterLocation default="24" /></td>
+            </tr>
             </tbody>
         </table>
         <br />
         <table class="social">
             <tbody>
-                <tr>
-                    <td>
-                        <table class="social">
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        Detailed Address:<lookup expression="patient.personAddress.address1"/> <lookup expression="patient.personAddress.address2"/> <lookup expression="patient.personAddress.cityVillage"/>
-                                    </td>
-                                </tr>
-                                <tr><td>Primary Phone:<lookup expression="personAttributes.get('Telephone Number')" /></td></tr>
-                                <tr><td>Other Phone:<lookup expression="personAttributes.get('Other Phone Number')" /></td></tr>
-                                <tr><td colspan="2">Chief / Subchief:<lookup expression="personAttributes.get('Chief or Sub Chiefs Name')" /></td></tr>
-                            </tbody>
-                        </table>
-                    </td>
-                    <td>
-                        <table class="social">
-                            <tbody>
-                                <tr>
-                                    <td>Worker Name:<obs conceptId="160638" /></td>
-                                </tr>
-                                <tr>
-                                    <td>Worker Phone:<obs conceptId="159635" /></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">Funding Sponsor:<lookup expression="personAttributes.get('Funding Sponsor')" /></td>
+            <tr>
+                <td>
+                    <table class="social">
+                        <tbody>
+                        <tr>
+                            <td>
+                                Detailed Address:<lookup expression="patient.personAddress.address1"/> <lookup expression="patient.personAddress.address2"/> <lookup expression="patient.personAddress.cityVillage"/>
+                            </td>
+                        </tr>
+                        <tr><td>Primary Phone:<lookup expression="personAttributes.get('Telephone Number')" /></td></tr>
+                        <tr><td>Other Phone:<lookup expression="personAttributes.get('Other Phone Number')" /></td></tr>
+                        <tr><td colspan="2">Chief / Subchief:<lookup expression="personAttributes.get('Chief or Sub Chiefs Name')" /></td></tr>
+                        </tbody>
+                    </table>
+                </td>
+                <td>
+                    <table class="social">
+                        <tbody>
+                        <tr>
+                            <td>Worker Name:<obs conceptId="160638" /></td>
+                        </tr>
+                        <tr>
+                            <td>Worker Phone:<obs conceptId="159635" /></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">Funding Sponsor:<lookup expression="personAttributes.get('Funding Sponsor')" /></td>
 
-                                </tr>
-                            </tbody>
+                        </tr>
+                        </tbody>
 
-                        </table>
-                    </td>
-                </tr>
+                    </table>
+                </td>
+            </tr>
             </tbody>
         </table>
         <table class="social">
             <tbody>
-                <tr>
-                    <td colspan="3">
-                        Notes:<obs conceptId="CIEL:162169" style="textarea" rows="5"/>
-                    </td>
+            <tr>
+                <td colspan="3">
+                    Notes:<obs conceptId="CIEL:162169" style="textarea" rows="5"/>
+                </td>
 
-                </tr>
+            </tr>
             </tbody>
         </table>
     </div>
@@ -81,5 +81,25 @@
     <submit submitClass="confirm right" submitCode="uicommons.saveForm"/>
     <ifMode mode="VIEW" include="false">
         <button class="cancel"><uimessage code="uicommons.cancelForm"/></button>
+    </ifMode>
+
+    <ifMode mode="EDIT" include="false">
+        <lookup complexExpression="
+            #set( $encounter = 0 )
+            #foreach ( $enc in $fn.allEncounters(null) )
+                  #if( $enc.encounterType.uuid == '3faf7df1-f57d-4661-b29e-58e2969d715f' )
+                      #if( $enc.visit.visitId == $visit.visitId )
+                          #set( $encounter = $enc)
+                      #end
+                   #end
+            #end
+            #if( $encounter != 0)
+                &lt;script type=&quot;text/javascript&quot;>
+                        if (window.location.href.indexOf('/module/htmlformentry/htmlForm.form') == -1 ||
+                            window.location.href.indexOf('/htmlformentryui/htmlform/enterHtmlFormWithStandardUi.page') == -1) {
+                            window.location.href = window.location.protocol + &quot;//&quot; + window.location.host + &quot;/&quot;+ OPENMRS_CONTEXT_PATH + &quot;/htmlformentryui/htmlform/editHtmlFormWithStandardUi.page?patientId=$encounter.patientId&amp;visitId=$visit.visitId&amp;formUuid=7d2a679c-bb5e-425d-b645-50ce46e29fbb&amp;encounterId=$encounter.encounterId&amp;returnUrl=%2F&quot; + OPENMRS_CONTEXT_PATH + &quot;%2Fcoreapps%2Fclinicianfacing%2Fpatient.page%3FpatientId%3D$encounter.patientId&quot;;
+                        }
+                &lt;/script>
+            #end"/>
     </ifMode>
 </htmlform>
